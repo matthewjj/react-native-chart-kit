@@ -13,26 +13,172 @@ import AbstractChart from './abstract-chart'
 
 class LineChart extends AbstractChart {
 
+  dataRefinedCache = [];
+
+  dataRefined = data => {
+
+    let dataRefined = [];
+    let nullGaps = {};
+    let start = null;
+    let end = null;
+    
+    data.map((dataset,index)=>{
+
+      let started = false;
+      
+      let nullStartVal = null;
+      let nullEndVal = null;
+
+      let nullStartPos = null;
+      let nullEndPos = null;
+
+      for(i = 0; i< dataset.data.length; i++) {
+
+          if(dataset.data[i] === null && started && nullStartVal === null) {
+            nullStartVal = dataset.data[i - 1];
+            nullStartPos = i - 1;
+
+          }
+      
+          if(dataset.data[i] !== null && started && nullStartVal !== null) {
+            nullEndVal = dataset.data[i];
+            nullEndPos = i;
+            
+          }
+
+          if(dataset.data[dataset.data.length - i - 1] !== null && end === null) {
+            end =  dataset.data.length - i;
+
+          }
+
+          if(dataset.data[i] !== null && start === null) {
+            start = i;
+            started = true;
+
+          }
+        
+          dataRefined.push(dataset.data[i]);
+
+          if(nullStartVal && nullEndVal) {
+
+            for(var ii = nullStartPos + 1; ii < nullEndPos; ii++) {
+              if(nullEndVal > nullStartVal) {
+                dataRefined[ii] = nullStartVal + (((nullEndVal - nullStartVal) / ( nullEndPos - nullStartPos)) * (ii - nullStartPos));
+              
+              }
+              else {
+                dataRefined[ii] = nullStartVal - (((nullStartVal - nullEndVal) / ( nullEndPos - nullStartPos)) * (ii - nullStartPos));
+              }
+              
+            }
+
+            nullGaps[nullStartPos] = {};
+            nullGaps[nullStartPos] = {
+                startVal : nullStartVal, 
+                endVal: nullEndVal,
+                startPos: nullStartPos,
+                endPos: nullEndPos
+            };
+            
+            nullStartVal = null;
+            nullEndVal = null;
+
+          }
+
+      }
+
+    });
+
+    return {
+      nullGaps: nullGaps,
+      start: start,
+      end: end,
+      dataRefined: dataRefined
+    }
+
+  }
+
+  renderLine = config => {
+    if (this.props.bezier) {
+      return this.renderBezierLine(config)
+    }
+    const { width, height, paddingRight, paddingTop, data} = config
+    let output = [];
+    var dataRefined = this.dataRefined(data);
+
+    this.dataRefinedCache = dataRefined;
+
+    data.map((dataset,index) => {
+      
+      const points = dataRefined.dataRefined.map((x, i) =>
+        (paddingRight + (i * (width - paddingRight) / dataset.data.length)) + ',' + 
+        (((height / 4 * 3 * (1 - ((  x - Math.min(...dataset.data)) / this.calcScaler(dataset.data))))) + paddingTop)
+      )
+
+      
+      for (var i = 0; i < dataRefined.dataRefined.length; i++) {
+        if(points[i+1] == undefined) {
+          return;
+        }
+        
+        output.push (
+          <Polyline
+            key = {i}
+            points={points[i]+' '+points[i+1]}
+            fill="none"
+            stroke={this.props.chartConfig.color(i < dataRefined.start || i >= dataRefined.end - 1  ? 0 : 0.2)}
+            strokeWidth={3}
+          />
+        )
+
+     }
+
+    })
+
+    return (
+      output
+    )
+    
+  }
+
+
   renderDots = config => {
     const { data, width, height, paddingTop, paddingRight } = config
     let output = [];
+    
     data.map((dataset,index)=>{
+
+      var dataRefined = this.dataRefinedCache;
+
+      var missStart = null;
+      var missEnd = null;
+
       dataset.data.map((x, i) => {
+        if(dataRefined.nullGaps[i] ) {
+          missStart = dataRefined.nullGaps[i].startPos;
+          missEnd = dataRefined.nullGaps[i].endPos;
+
+        }
+        
         output.push (
           <Circle
             key={Math.random()}
             cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
             cy={((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.calcScaler(dataset.data)))) + paddingTop)}
             r="4"
-            fill={this.props.chartConfig.color(0.7)}
+            fill={
+              this.props.chartConfig.color(
+                (missStart && i > missStart && i < missEnd) || i < dataRefined.start || i >= dataRefined.end ? 0 : 0.7
+              )
+            }
           />)
       })
+
     })
     return (
       output
     )
 
-    
   }
 
   renderShadow = config => {
@@ -58,38 +204,6 @@ class LineChart extends AbstractChart {
       output
     )
     
-    
-  }
-
-  renderLine = config => {
-    if (this.props.bezier) {
-      return this.renderBezierLine(config)
-    }
-    const { width, height, paddingRight, paddingTop, data } = config
-    let output = [];
-    data.map((dataset,index) => {
-
-      const points = dataset.data.map((x, i) =>
-      (paddingRight + (i * (width - paddingRight) / dataset.data.length)) +
-      ',' +
-       (((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.calcScaler(dataset.data))))) + paddingTop))
-
-      output.push (
-        <Polyline
-          key = {index}
-          points={points.join(' ')}
-          fill="none"
-          stroke={this.props.chartConfig.color(0.2)}
-          strokeWidth={3}
-        />
-      )
-
-    })
-
-    return (
-      output
-    )
-
     
   }
 
@@ -166,6 +280,7 @@ class LineChart extends AbstractChart {
       width,
       height
     }
+
     return (
       <View style={style}>
         <Svg
