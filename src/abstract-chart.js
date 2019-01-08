@@ -53,7 +53,6 @@ class AbstractChart extends Component {
     const fontSize = 12
 
     if(this.props.chartConfig.tiltXAxis) {
-      var prevI = 0;
       return labels.map((label, i) => {
         
         return (
@@ -74,8 +73,6 @@ class AbstractChart extends Component {
           </Text>
           </G>
         )
-
-        prevI = i;
       })
 
 
