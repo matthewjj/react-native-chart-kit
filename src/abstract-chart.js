@@ -5,7 +5,8 @@ import {
   Line,
   Text,
   Defs,
-  Stop
+  Stop,
+  G
 } from 'react-native-svg'
 
 class AbstractChart extends Component {
@@ -31,7 +32,7 @@ class AbstractChart extends Component {
 
   renderHorizontalLabels = config => {
     const { count, data, height, paddingTop, paddingRight, yLabelsOffset = 12 } = config
-  var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
+    var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
     return [...new Array(count)].map((_, i) => {
       return (
         <Text
@@ -50,6 +51,37 @@ class AbstractChart extends Component {
   renderVerticalLabels = config => {
     const { labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
     const fontSize = 12
+
+    if(this.props.chartConfig.tiltXAxis) {
+      var prevI = 0;
+      return labels.map((label, i) => {
+        
+        return (
+          <G 
+            key={Math.random()}
+            x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+            y={(height * 3 / 4) + paddingTop + (fontSize * 2)}
+          >
+          <Text
+            key={Math.random()}
+            //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+            //y={y}
+            fontSize={fontSize}
+            fill={this.props.chartConfig.color(0.5)}
+            textAnchor="middle"
+            transform="translate(0, 0) rotate(-45)"
+          >{label}
+          </Text>
+          </G>
+        )
+
+        prevI = i;
+      })
+
+
+    }
+
+
     return labels.map((label, i) => {
       return (
         <Text
