@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-
 import {
   LinearGradient,
   Line,
@@ -12,16 +11,72 @@ import {
 class AbstractChart extends Component {
   calcScaler = data => (Math.max(...data) - Math.min(...data)) || 1
 
+  minValue = data => (Math.min(...data))
+
+  maxValue = data => (Math.max(...data))
+
+  yAxisLabels = (range, min) => { 
+    if(min < 0) {
+      if(range <= 200) {
+        var yLabels = [-50, 0, 50, 100, 150];
+
+      }
+      else {
+        var yLabels = [-100, 0, 100, 200, 300];
+
+      }
+
+    }
+    else {
+      if(range <= 200) {
+        var yLabels = [0, 50, 100, 150];
+
+      }
+      else if(range > 200) {
+        var yLabels = [0, 100, 200, 300];
+
+      }
+
+    } 
+
+    return yLabels;
+
+  }
+
+
+  offset = (range) => { 
+    if(range <= 200) {
+        offset = 50;
+
+    }
+    else {
+        offset = 100;
+
+    }
+
+    return offset;
+
+  }
+
   renderHorizontalLines = config => {
-    const { count, width, height, paddingTop, paddingRight } = config
+    var { count, width, height, paddingTop, paddingRight, data } = config
+
+    var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
+    let min = Math.min(...data).toFixed(decimalPlaces);
+
+    if(min < 0) {
+      count++;
+    }
+    
+    console.log("real count: " + count)
     return [...new Array(count)].map((_, i) => {
       return (
         <Line
           key={Math.random()}
           x1={paddingRight}
-          y1={(height / 4 * i) + paddingTop}
+          y1={(height / count * i) + paddingTop}
           x2={width}
-          y2={(height / 4 * i) + paddingTop}
+          y2={(height / count * i) + paddingTop}
           stroke={this.props.chartConfig.color(0.2)}
           strokeDasharray="5, 10"
           strokeWidth={1}
@@ -31,66 +86,41 @@ class AbstractChart extends Component {
   }
 
   renderHorizontalLabels = config => {
-    const { count, data, height, paddingTop, paddingRight, yLabelsOffset = 12 } = config
+    var { count, data, height, paddingTop, paddingRight, yLabelsOffset = 12 } = config
     var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
+    
+    let min = Math.min(...data).toFixed(decimalPlaces);
+    let max = Math.max(...data).toFixed(decimalPlaces);
+
+    let range = this.calcScaler(data);
+
+    var yLabels = this.yAxisLabels(range, min);
+
+    if(min < 0) {
+      count++;
+
+    }
+
     return [...new Array(count)].map((_, i) => {
+
       return (
         <Text
           key={Math.random()}
           x={paddingRight - yLabelsOffset}
           textAnchor="end"
-          y={(height * 3 / 4) - ((height - paddingTop) / count * i) + 12}
+          y={(height / count * i) + paddingTop + 4}
           fontSize={12}
           fill={this.props.chartConfig.color(0.5)}
-        >{count === 1 ? (data[0] == undefined ? 0 : data[0].toFixed(decimalPlaces)) : ((this.calcScaler(data) / (count - 1)) * i + Math.min(...data)).toFixed(decimalPlaces)}
+        >
+        {//count === 1 ? (data[0] == undefined ? 0 : data[0].toFixed(decimalPlaces)) : 
+          //((this.calcScaler(data) / (count - 1)) * i + Math.min(...data)).toFixed(decimalPlaces)
+
+          (yLabels[count - i - 1])
+        }
         </Text>
       )
-    })
-  }
-
-  renderVerticalLabels = config => {
-    const { labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
-    const fontSize = 12
-
-    if(this.props.chartConfig.tiltXAxis) {
-      return labels.map((label, i) => {
-        
-        return (
-          <G 
-            key={Math.random()}
-            x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
-            y={(height * 3 / 4) + paddingTop + (fontSize * 2)}
-          >
-          <Text
-            key={Math.random()}
-            //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
-            //y={y}
-            fontSize={fontSize}
-            fill={this.props.chartConfig.color(0.5)}
-            textAnchor="middle"
-            transform="translate(0, 0) rotate(-45)"
-          >{label}
-          </Text>
-          </G>
-        )
-      })
 
 
-    }
-
-
-    return labels.map((label, i) => {
-      return (
-        <Text
-          key={Math.random()}
-          x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
-          y={(height * 3 / 4) + paddingTop + (fontSize * 2)}
-          fontSize={fontSize}
-          fill={this.props.chartConfig.color(0.5)}
-          textAnchor="middle"
-        >{label}
-        </Text>
-      )
     })
   }
 
@@ -108,6 +138,62 @@ class AbstractChart extends Component {
           strokeDasharray="5, 10"
           strokeWidth={1}
         />
+      )
+    })
+  }
+
+  renderVerticalLabels = config => {
+    var { count, data, labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
+    const fontSize = 12
+
+    var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
+    let min = Math.min(...data).toFixed(decimalPlaces);
+
+    if(min < 0) {
+      count++;
+
+    }
+
+    if(this.props.chartConfig.tiltXAxis) {
+      
+      return labels.map((label, i) => {
+        
+        return (
+          <G 
+            key={Math.random()}
+            x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+            y={(height * (count - 1) / count) + paddingTop + (fontSize * 2)}
+          >
+            <Text
+              key={Math.random()}
+              //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+              //y={y}
+              fontSize={fontSize}
+              fill={this.props.chartConfig.color(0.5)}
+              textAnchor="middle"
+              transform="translate(-10, 0) rotate(-45)"
+            >{label}
+            </Text>
+          </G>
+        )
+
+      })
+
+
+    }
+
+
+    return labels.map((label, i) => {
+      return (
+        <Text
+          key={Math.random()}
+          x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+          y={(height * (count - 1) / count) + paddingTop + (fontSize * 2)}
+          fontSize={fontSize}
+          fill={this.props.chartConfig.color(0.5)}
+          textAnchor="middle"
+        >{label}
+        </Text>
       )
     })
   }

@@ -143,28 +143,65 @@ class LineChart extends AbstractChart {
 
 
   renderDots = config => {
-    const { data, width, height, paddingTop, paddingRight } = config
+    var { count, data, width, height, paddingTop, paddingRight } = config
+
+  
     let output = [];
     
     data.map((dataset,index)=>{
 
       var dataRefined = this.dataRefinedCache;
+      var offset = 0;
+      var min = this.minValue(dataset.data);
+      var max = this.minValue(dataset.data);
+      var range = this.calcScaler(dataset.data);
+
+      var yAxisLabels = this.yAxisLabels(range, min);
+      var yAxisRange = Math.max(...yAxisLabels) - Math.min(...yAxisLabels);
+     
+      console.log(yAxisRange);
+
+      if(min < 0) {
+        count++;
+        offset = this.offset(range);
+
+      }
+
+      if(range <= 200) {
+        yAxisRange = 200
+
+      }
+      else if(range > 200) {
+        yAxisRange = 400
+
+      }
 
       var missStart = null;
       var missEnd = null;
-
+      
       dataset.data.map((x, i) => {
         if(dataRefined.nullGaps[i] ) {
           missStart = dataRefined.nullGaps[i].startPos;
           missEnd = dataRefined.nullGaps[i].endPos;
 
         }
-        
+    
+        let baseLine = (height / count * (count - 1)) + paddingTop;
+
+        let y = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (x + offset))) ;
+
+        console.log(
+          {
+            value: x,
+            count: count
+          }
+        );
+
         output.push (
           <Circle
             key={Math.random()}
             cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
-            cy={((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.calcScaler(dataset.data)))) + paddingTop)}
+            cy={y}
             r="4"
             fill={
               this.props.chartConfig.color(
@@ -173,6 +210,8 @@ class LineChart extends AbstractChart {
             }
           />)
       })
+
+      console.log(" ");
 
     })
     return (
@@ -302,7 +341,8 @@ class LineChart extends AbstractChart {
               ...config,
               count: 4,
               paddingTop,
-              paddingRight
+              paddingRight,
+              data: data.datasets[0].data,
             })}
             {this.renderHorizontalLabels({
               ...config,
@@ -320,6 +360,8 @@ class LineChart extends AbstractChart {
             })}
             {this.renderVerticalLabels({
               ...config,
+              count: 4,
+              data: data.datasets[0].data,
               labels,
               paddingRight,
               paddingTop
@@ -340,6 +382,7 @@ class LineChart extends AbstractChart {
             })}
             {withDots && this.renderDots({
               ...config,
+              count: 4,
               data: data.datasets,
               paddingTop,
               paddingRight
