@@ -17,12 +17,15 @@ class LineChart extends AbstractChart {
 
   dataRefined = data => {
 
-    let dataRefined = [];
-    let nullGaps = {};
-    let start = null;
-    let end = null;
+    let combinedArray = [];
+
     
     data.map((dataset,index)=>{
+      
+      let dataRefined = [];
+      let nullGaps = {};
+      let start = null;
+      let end = null;
 
       let started = false;
       
@@ -87,14 +90,17 @@ class LineChart extends AbstractChart {
 
       }
 
+      combinedArray.push({
+        nullGaps: nullGaps,
+        start: start,
+        end: end,
+        data: dataRefined,
+        color: dataset.color
+      })
+
     });
 
-    return {
-      nullGaps: nullGaps,
-      start: start,
-      end: end,
-      dataRefined: dataRefined
-    }
+    return combinedArray;
 
   }
 
@@ -104,29 +110,58 @@ class LineChart extends AbstractChart {
     }
     const { width, height, paddingRight, paddingTop, data} = config
     let output = [];
-    var dataRefined = this.dataRefined(data);
 
+    var dataRefined = this.dataRefined(data);
     this.dataRefinedCache = dataRefined;
 
-    data.map((dataset,index) => {
-      
-      const points = dataRefined.dataRefined.map((x, i) =>
-        (paddingRight + (i * (width - paddingRight) / dataset.data.length)) + ',' + 
-        (((height / 4 * 3 * (1 - ((  x - Math.min(...dataset.data)) / this.calcScaler(dataset.data))))) + paddingTop)
-      )
+    
 
-      
-      for (var i = 0; i < dataRefined.dataRefined.length; i++) {
-        if(points[i+1] == undefined) {
+    var min = this.getMinValue();
+    var range = this.getMaximumRange();
+    var yAxisLabels = this.yAxisLabels(range, min);
+    var yAxisRange = this.calcYAxisRange(yAxisLabels);
+    var offset = this.getNegativeOffset();
+    
+    var count = yAxisLabels.length;
+
+    dataRefined.map((dataset, index) => {
+       
+
+      for (var i = 0; i < dataset.data.length; i++) {
+        if(dataset.data[i+1] == undefined) {
           return;
         }
+
+        let value1 = dataset.data[i];
+        let value2 = dataset.data[i+1];
+
+        let baseLine = (height / count * (count - 1)) + paddingTop;
+        
+        let x1 = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (value1 + offset))) ;
+        let y1 = paddingRight + (i * (width - paddingRight) / dataset.data.length);
+
+        let x2 = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (value2 + offset))) ;
+        let y2 = paddingRight + ((i+1) * (width - paddingRight) / dataset.data.length);
+
+
+        
         
         output.push (
           <Polyline
-            key = {i}
-            points={points[i]+' '+points[i+1]}
+            key = {index+"-"+i}
+            points={y1+","+x1+' '+y2+","+x2}
             fill="none"
-            stroke={this.props.chartConfig.color(i < dataRefined.start || i >= dataRefined.end - 1  ? 0 : 0.2)}
+            stroke={
+              dataset.color ? 
+                dataset.color(
+                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                  0 : 0.2
+                ) : 
+                this.props.chartConfig.color(
+                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                  0 : 0.2
+                )
+            }
             strokeWidth={3}
           />
         )
@@ -144,74 +179,62 @@ class LineChart extends AbstractChart {
 
   renderDots = config => {
     var { count, data, width, height, paddingTop, paddingRight } = config
-
   
     let output = [];
-    
-    data.map((dataset,index)=>{
+    var dataRefined = this.dataRefinedCache;
 
-      var dataRefined = this.dataRefinedCache;
-      var offset = 0;
-      var min = this.minValue(dataset.data);
-      var max = this.minValue(dataset.data);
-      var range = this.calcScaler(dataset.data);
+    var min = this.getMinValue();
+    var offset = this.getNegativeOffset();
+    var range = this.getMaximumRange();
 
-      var yAxisLabels = this.yAxisLabels(range, min);
-      var yAxisRange = Math.max(...yAxisLabels) - Math.min(...yAxisLabels);
-     
-      console.log(yAxisRange);
+    var yAxisLabels = this.yAxisLabels(range, min);
+    var yAxisRange = this.calcYAxisRange(yAxisLabels);
 
-      if(min < 0) {
-        count++;
-        offset = this.offset(range);
+    count = yAxisLabels.length;
 
-      }
-
-      if(range <= 200) {
-        yAxisRange = 200
-
-      }
-      else if(range > 200) {
-        yAxisRange = 400
-
-      }
-
+    dataRefined.map((dataset, index)=>{
+      console.log(dataset); 
       var missStart = null;
       var missEnd = null;
       
       dataset.data.map((x, i) => {
-        if(dataRefined.nullGaps[i] ) {
-          missStart = dataRefined.nullGaps[i].startPos;
-          missEnd = dataRefined.nullGaps[i].endPos;
+        if(dataset.nullGaps[i] ) {
+          missStart = dataset.nullGaps[i].startPos;
+          missEnd = dataset.nullGaps[i].endPos;
 
         }
     
         let baseLine = (height / count * (count - 1)) + paddingTop;
-
         let y = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (x + offset))) ;
-
-        console.log(
-          {
-            value: x,
-            count: count
-          }
-        );
-
+        
+      
         output.push (
           <Circle
-            key={Math.random()}
+            key={index+"-"+i}
             cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
             cy={y}
             r="4"
+            stroke={
+              dataset.color ? 
+                dataset.color(
+                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                  0 : 0.2
+                ) : 
+                this.props.chartConfig.color(
+                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                  0 : 0.2
+                )
+            }
+            strokeWidth={1}
             fill={
               this.props.chartConfig.color(
-                (missStart && i > missStart && i < missEnd) || i < dataRefined.start || i >= dataRefined.end ? 0 : 0.7
+                (missStart && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end ? 0 : 0.7
               )
             }
           />)
       })
 
-      console.log(" ");
+
 
     })
     return (
@@ -233,7 +256,7 @@ class LineChart extends AbstractChart {
           points={dataset.data.map((x, i) =>
             (paddingRight + (i * (width - paddingRight) / dataset.data.length)) +
           ',' +
-           (((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.calcScaler(dataset.data)))) + paddingTop))
+           (((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.getMaximumRange()))) + paddingTop))
           ).join(' ') + ` ${paddingRight + ((width - paddingRight) / dataset.data.length * (dataset.data.length - 1))},${(height / 4 * 3) + paddingTop} ${paddingRight},${(height / 4 * 3) + paddingTop}`}
           fill="url(#fillShadowGradient)"
           strokeWidth={0}
@@ -254,7 +277,7 @@ class LineChart extends AbstractChart {
       return 'M0,0'
     }
     const x = i => Math.floor(paddingRight + i * (width - paddingRight) / dataset.data.length)
-    const y = i => Math.floor(((height / 4 * 3 * (1 - ((dataset.data[i] - Math.min(...dataset.data)) / this.calcScaler(dataset.data)))) + paddingTop))
+    const y = i => Math.floor(((height / 4 * 3 * (1 - ((dataset.data[i] - Math.min(...dataset.data)) / this.getMaximumRange()))) + paddingTop))
     
     return [`M${x(0)},${y(0)}`].concat(dataset.data.slice(0, -1).map((_, i) => {
       const x_mid = (x(i) + x(i + 1)) / 2
@@ -319,6 +342,10 @@ class LineChart extends AbstractChart {
       width,
       height
     }
+    this.setStats(data.datasets);
+    const range = this.getMaximumRange();
+    const min = this.getMinValue();
+    
 
     return (
       <View style={style}>

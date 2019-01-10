@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+
 import {
   LinearGradient,
   Line,
@@ -9,14 +10,47 @@ import {
 } from 'react-native-svg'
 
 class AbstractChart extends Component {
-  calcScaler = data => (Math.max(...data) - Math.min(...data)) || 1
 
-  minValue = data => (Math.min(...data))
+  minValue = 0;
+  maxValue = 0;
+  maximumRange = 0;
+  negativeOffset = 0;
 
-  maxValue = data => (Math.max(...data))
+  calcYAxisRange = data => (Math.max(...data) - Math.min(...data)) || 1
+
+  setStats = (data) => {
+    let valueSet = [];
+
+    data.map((dataset, index)=>{
+      for(i = 0; i< dataset.data.length; i++) {
+        
+        valueSet.push(dataset.data[i])
+      }
+
+    });
+
+    this.minValue = Math.min(...valueSet);
+    this.maxValue = Math.max(...valueSet);
+    this.maximumRange = this.maxValue - this.minValue;
+
+    this.negativeOffset = this.negativeYAxisOffset(this.maximumRange, this.minValue);
+    return true;
+  }
+
+  getMinValue = () => { 
+    return this.minValue;
+  }
+
+  getMaximumRange = () => { 
+    return this.maximumRange;
+  }
+  
+  getNegativeOffset = () => {
+    return this.negativeOffset;
+  }
 
   yAxisLabels = (range, min) => { 
-    if(min < 0) {
+    if(this.minValue < 0) {
       if(range <= 200) {
         var yLabels = [-50, 0, 50, 100, 150];
 
@@ -29,11 +63,11 @@ class AbstractChart extends Component {
     }
     else {
       if(range <= 200) {
-        var yLabels = [0, 50, 100, 150];
+        var yLabels = [0, 50, 100, 150, 200];
 
       }
       else if(range > 200) {
-        var yLabels = [0, 100, 200, 300];
+        var yLabels = [0, 100, 200, 300, 400];
 
       }
 
@@ -44,14 +78,17 @@ class AbstractChart extends Component {
   }
 
 
-  offset = (range) => { 
-    if(range <= 200) {
-        offset = 50;
+  negativeYAxisOffset = (range, min) => { 
+    let offset = 0;
+    if(this.minValue < 0) {
+      if(range <= 200) {
+          offset = 50;
 
-    }
-    else {
-        offset = 100;
+      }
+      else {
+          offset = 100;
 
+      }
     }
 
     return offset;
@@ -62,13 +99,12 @@ class AbstractChart extends Component {
     var { count, width, height, paddingTop, paddingRight, data } = config
 
     var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
-    let min = Math.min(...data).toFixed(decimalPlaces);
-
-    if(min < 0) {
-      count++;
-    }
     
-    console.log("real count: " + count)
+    var range = this.getMaximumRange();
+    var yAxisLabels = this.yAxisLabels(range, this.minValue);
+    
+    count = yAxisLabels.length;
+    
     return [...new Array(count)].map((_, i) => {
       return (
         <Line
@@ -89,17 +125,10 @@ class AbstractChart extends Component {
     var { count, data, height, paddingTop, paddingRight, yLabelsOffset = 12 } = config
     var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
     
-    let min = Math.min(...data).toFixed(decimalPlaces);
-    let max = Math.max(...data).toFixed(decimalPlaces);
+    let range = this.getMaximumRange();
+    var yLabels = this.yAxisLabels(range, this.minValue);
 
-    let range = this.calcScaler(data);
-
-    var yLabels = this.yAxisLabels(range, min);
-
-    if(min < 0) {
-      count++;
-
-    }
+    count = yLabels.length;
 
     return [...new Array(count)].map((_, i) => {
 
@@ -112,11 +141,7 @@ class AbstractChart extends Component {
           fontSize={12}
           fill={this.props.chartConfig.color(0.5)}
         >
-        {//count === 1 ? (data[0] == undefined ? 0 : data[0].toFixed(decimalPlaces)) : 
-          //((this.calcScaler(data) / (count - 1)) * i + Math.min(...data)).toFixed(decimalPlaces)
-
-          (yLabels[count - i - 1])
-        }
+        {(yLabels[count - i - 1])}
         </Text>
       )
 
@@ -149,17 +174,17 @@ class AbstractChart extends Component {
     var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
     let min = Math.min(...data).toFixed(decimalPlaces);
 
-    if(min < 0) {
-      count++;
+    let range = this.getMaximumRange();
+    var yLabels = this.yAxisLabels(range, min);
+    count = yLabels.length;
 
-    }
 
     if(this.props.chartConfig.tiltXAxis) {
       
       return labels.map((label, i) => {
         
         return (
-          <G 
+          <G
             key={Math.random()}
             x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
             y={(height * (count - 1) / count) + paddingTop + (fontSize * 2)}
