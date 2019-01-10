@@ -50,26 +50,76 @@ class AbstractChart extends Component {
   }
 
   yAxisLabels = (range, min) => { 
+    console.log(this.maxValue);
     if(this.minValue < 0) {
-      if(range <= 200) {
-        var yLabels = [-50, 0, 50, 100, 150];
+      if(this.maxValue > 1500) {
+        var yLabels = [-1000, 0, 1000, 2000, 3000];
+
+      }
+      else if(this.maxValue > 600) {
+        var yLabels = [-500, 0, 500, 1000, 1500];
+
+      } 
+      else if(this.maxValue > 300) {
+        var yLabels = [-200, 0, 200, 400, 600];
+
+      }
+      else if(this.maxValue > 150) {
+        var yLabels = [-100, 0, 100, 200, 300];
 
       }
       else {
-        var yLabels = [-100, 0, 100, 200, 300];
+        var yLabels = [-50, 0, 50, 100, 150];
 
       }
 
     }
     else {
-      if(range <= 200) {
-        var yLabels = [0, 50, 100, 150, 200];
+      if(this.maxValue > 800000) {
+        var yLabels = [0, 400000, 800000, 1200000, 1600000];
 
       }
-      else if(range > 200) {
+      else if(this.maxValue > 400000) {
+        var yLabels = [0, 200000, 400000, 600000, 800000];
+
+      }
+      else if(this.maxValue > 40000) {
+        var yLabels = [0, 100000, 200000, 300000, 400000];
+
+      }
+      else if(this.maxValue > 12000) {
+        var yLabels = [0, 10000, 20000, 30000, 40000];
+
+      }
+      else if(this.maxValue > 8000) {
+        var yLabels = [0, 4000, 8000, 10000, 12000];
+
+      }
+      else if(this.maxValue > 4000) {
+        var yLabels = [0, 2000, 4000, 6000, 8000];
+
+      }
+      else if(this.maxValue > 2000) {
+        var yLabels = [0, 1000, 2000, 3000, 4000];
+
+      }
+      else if(this.maxValue > 800) {
+        var yLabels = [0, 500, 1000, 1500, 2000];
+
+      }
+      else if(this.maxValue > 400) {
+        var yLabels = [0, 200, 400, 600, 800];
+
+      }
+      else if(this.maxValue > 200) {
         var yLabels = [0, 100, 200, 300, 400];
 
       }
+      else if(this.maxValue <= 200) {
+        var yLabels = [0, 50, 100, 150, 200];
+
+      }
+
 
     } 
 
@@ -81,7 +131,7 @@ class AbstractChart extends Component {
   negativeYAxisOffset = (range, min) => { 
     let offset = 0;
     if(this.minValue < 0) {
-      if(range <= 200) {
+      if(this.maxValue <= 200) {
           offset = 50;
 
       }
@@ -141,7 +191,7 @@ class AbstractChart extends Component {
           fontSize={12}
           fill={this.props.chartConfig.color(0.5)}
         >
-        {(yLabels[count - i - 1])}
+        {(yLabels[count - i - 1].toLocaleString())}
         </Text>
       )
 
@@ -221,6 +271,28 @@ class AbstractChart extends Component {
         </Text>
       )
     })
+  }
+
+  renderLegend = config => {
+    var { count, data, labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
+    const fontSize = 12
+
+    
+    return [...new Array(data.length)].map((_, i) => {
+      return (
+        <Text
+          key={Math.random()}
+          x={((width - paddingRight) / data.length * (i)) + paddingRight + horizontalOffset}
+          y={paddingTop}
+          fontSize={fontSize}
+          fill={this.props.chartConfig.color(0.5)}
+          textAnchor="middle"
+        >
+          {'label'}
+        </Text>
+      )
+    })
+
   }
 
   renderDefs = config => {
