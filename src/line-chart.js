@@ -193,7 +193,7 @@ class LineChart extends AbstractChart {
     count = yAxisLabels.length;
 
     dataRefined.map((dataset, index)=>{
-      console.log(dataset); 
+       
       var missStart = null;
       var missEnd = null;
       
@@ -408,6 +408,13 @@ class LineChart extends AbstractChart {
               paddingTop
             })}
             {withDots && this.renderDots({
+              ...config,
+              count: 4,
+              data: data.datasets,
+              paddingTop,
+              paddingRight
+            })}
+            {this.renderLegend({
               ...config,
               count: 4,
               data: data.datasets,
