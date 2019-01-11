@@ -274,13 +274,13 @@ class LineChart extends AbstractChart {
               onPress={() => this.setState({selectedIndex: index+":"+ i })}
               
              
-            >
+            />
               <Circle
                 key={index+"-"+i}
                 
                 cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
                 cy={y}
-                r="14"
+                r="4"
                 stroke={
                   dataset.color ? 
                     dataset.color(
@@ -301,7 +301,7 @@ class LineChart extends AbstractChart {
 
 
               />
-            </Rect>
+            
           </G>
           )
       })

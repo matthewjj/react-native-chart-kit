@@ -232,7 +232,8 @@ class AbstractChart extends Component {
     if(this.props.chartConfig.tiltXAxis) {
       
       return labels.map((label, i) => {
-        
+        let labelSplit = label.split(" ")
+        console.log(labelSplit);
         return (
           <G
             key={Math.random()}
@@ -247,8 +248,26 @@ class AbstractChart extends Component {
               fill={this.props.chartConfig.color(0.5)}
               textAnchor="middle"
               transform="translate(-10, 0) rotate(-45)"
-            >{label}
+            >
+              {labelSplit[0]}
             </Text>
+
+            {labelSplit[1] && 
+              <Text
+                key={Math.random()}
+                //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
+                //y={y}
+                fontSize={fontSize}
+                fill={this.props.chartConfig.color(0.5)}
+                textAnchor="middle"
+                transform="translate(10, 0) rotate(-45)"
+            >
+
+              {labelSplit[1]}
+            </Text>
+
+
+            }
           </G>
         )
 
