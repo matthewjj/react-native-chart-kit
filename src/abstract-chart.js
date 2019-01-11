@@ -50,7 +50,7 @@ class AbstractChart extends Component {
   }
 
   yAxisLabels = (range, min) => { 
-    console.log(this.maxValue);
+    
     if(this.minValue < 0) {
       if(this.maxValue > 1500) {
         var yLabels = [-1000, 0, 1000, 2000, 3000];

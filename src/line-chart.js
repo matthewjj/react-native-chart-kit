@@ -7,7 +7,9 @@ import {
   Polyline,
   Path,
   Rect,
-  G
+  G,
+  Text,
+  Tspan
 } from 'react-native-svg'
 import AbstractChart from './abstract-chart'
 
@@ -18,8 +20,6 @@ class LineChart extends AbstractChart {
   dataRefined = data => {
 
     let combinedArray = [];
-
-    
     data.map((dataset,index)=>{
       
       let dataRefined = [];
@@ -125,8 +125,7 @@ class LineChart extends AbstractChart {
     var count = yAxisLabels.length;
 
     dataRefined.map((dataset, index) => {
-       
-
+      
       for (var i = 0; i < dataset.data.length; i++) {
         if(dataset.data[i+1] == undefined) {
           return;
@@ -143,9 +142,6 @@ class LineChart extends AbstractChart {
         let x2 = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (value2 + offset))) ;
         let y2 = paddingRight + ((i+1) * (width - paddingRight) / dataset.data.length);
 
-
-        
-        
         output.push (
           <Polyline
             key = {index+"-"+i}
@@ -178,8 +174,9 @@ class LineChart extends AbstractChart {
 
 
   renderDots = config => {
-    var { count, data, width, height, paddingTop, paddingRight } = config
-  
+    
+    var { count, data, labels, width, height, paddingTop, paddingRight } = config
+    const wordLengthEstimate = 8.75;
     let output = [];
     var dataRefined = this.dataRefinedCache;
 
@@ -209,29 +206,104 @@ class LineChart extends AbstractChart {
         
       
         output.push (
-          <Circle
-            key={index+"-"+i}
-            cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
-            cy={y}
-            r="4"
-            stroke={
-              dataset.color ? 
-                dataset.color(
-                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                  0 : 0.2
-                ) : 
-                this.props.chartConfig.color(
-                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                  0 : 0.2
-                )
+          <G 
+            key ={Math.random()}
+            
+          >
+            {this.state && this.state.selectedIndex == (index+":"+ i) && 
+            <G 
+            key ={Math.random()}
+            
+          >
+            <Rect
+              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)}
+              y={y - 46}
+              rx="3"
+              ry="3"
+              width={(labels[i] ? labels[i].length * wordLengthEstimate : 70 )}
+              height="40"
+              strokeWidth={2}
+              stroke={
+                  dataset.color ? 
+                    dataset.color(
+                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                      0 : 0.2
+                    ) : 
+                    this.props.chartConfig.color(
+                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                      0 : 0.2
+                    )
+                }
+              fill="white"
+             
+            />
+              <Text
+                key={Math.random()}
+                x={paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4}
+                y={y - 30}
+                textAnchor="middle"
+                fontSize={12}
+                fill="black"
+              >
+                {(labels[i] ? labels[i] : "")}
+                
+              </Text>
+              <Text
+                key={Math.random()}
+                x={paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4}
+                y={y - 16}
+                textAnchor="middle"
+                fontSize={12}
+                fill="black"
+              >
+                {x}
+                
+              </Text>
+
+              </G>
+            
             }
-            strokeWidth={1}
-            fill={
-              this.props.chartConfig.color(
-                (missStart && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end ? 0 : 0.7
-              )
-            }
-          />)
+
+
+            <Rect
+              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 20}
+              y={y - 15}
+              width="40"
+              height="40"
+              fill={this.props.chartConfig.color(0)}
+              onPress={() => this.setState({selectedIndex: index+":"+ i })}
+              
+             
+            >
+              <Circle
+                key={index+"-"+i}
+                
+                cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
+                cy={y}
+                r="14"
+                stroke={
+                  dataset.color ? 
+                    dataset.color(
+                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                      0 : 0.2
+                    ) : 
+                    this.props.chartConfig.color(
+                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
+                      0 : 0.2
+                    )
+                }
+                strokeWidth={1}
+                fill={
+                  this.props.chartConfig.color(
+                    (missStart && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end ? 0 : 0.7
+                  )
+                }
+
+
+              />
+            </Rect>
+          </G>
+          )
       })
 
 
@@ -363,7 +435,9 @@ class LineChart extends AbstractChart {
               height={height}
               rx={borderRadius}
               ry={borderRadius}
-              fill="url(#backgroundGradient)"/>
+              fill="url(#backgroundGradient)"
+              onPress={() => this.setState({selectedIndex: false})}
+            />
             {this.renderHorizontalLines({
               ...config,
               count: 4,
@@ -411,6 +485,7 @@ class LineChart extends AbstractChart {
               ...config,
               count: 4,
               data: data.datasets,
+              labels,
               paddingTop,
               paddingRight
             })}
