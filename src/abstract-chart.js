@@ -233,7 +233,7 @@ class AbstractChart extends Component {
       
       return labels.map((label, i) => {
         let labelSplit = label.split(" ")
-        console.log(labelSplit);
+        
         return (
           <G
             key={Math.random()}

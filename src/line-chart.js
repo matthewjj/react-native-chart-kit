@@ -216,7 +216,7 @@ class LineChart extends AbstractChart {
             
           >
             <Rect
-              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)}
+              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)}
               y={y - 46}
               rx="3"
               ry="3"
