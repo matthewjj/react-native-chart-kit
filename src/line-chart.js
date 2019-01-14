@@ -75,7 +75,7 @@ class LineChart extends AbstractChart {
               
             }
 
-            nullGaps[nullStartPos] = {};
+            //nullGaps[nullStartPos] = {};
             nullGaps[nullStartPos] = {
                 startVal : nullStartVal, 
                 endVal: nullEndVal,

@@ -296,7 +296,6 @@ class AbstractChart extends Component {
     var { count, data, labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
     const fontSize = 12
 
-    
     return [...new Array(data.length)].map((_, i) => {
       return (
         <Text
