@@ -23,6 +23,9 @@ class LineChart extends AbstractChart {
     data.map((dataset,index)=>{
       
       let dataRefined = [];
+
+      let isData = false;
+
       let nullGaps = {};
       let start = null;
       let end = null;
@@ -59,8 +62,9 @@ class LineChart extends AbstractChart {
             started = true;
 
           }
-        
+          
           dataRefined.push(dataset.data[i]);
+          
 
           if(nullStartVal && nullEndVal) {
 
@@ -95,7 +99,8 @@ class LineChart extends AbstractChart {
         start: start,
         end: end,
         data: dataRefined,
-        color: dataset.color
+        color: dataset.color,
+        hasData: started
       })
 
     });
@@ -193,12 +198,16 @@ class LineChart extends AbstractChart {
        
       var missStart = null;
       var missEnd = null;
+
+      if(!dataset.hasData) {
+        return;
+      }
       
       dataset.data.map((x, i) => {
         if(dataset.nullGaps[i] ) {
           missStart = dataset.nullGaps[i].startPos;
           missEnd = dataset.nullGaps[i].endPos;
-
+          
         }
     
         let baseLine = (height / count * (count - 1)) + paddingTop;
