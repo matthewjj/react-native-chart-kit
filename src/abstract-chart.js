@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
-
 import {
+  View, ScrollView
+} from 'react-native'
+import {
+  Svg,
   LinearGradient,
   Line,
   Text,
   Defs,
   Stop,
-  G
+  G,
+  Rect
 } from 'react-native-svg'
 
 class AbstractChart extends Component {
@@ -188,7 +192,7 @@ class AbstractChart extends Component {
           x={paddingRight - yLabelsOffset}
           textAnchor="end"
           y={(height / count * i) + paddingTop + 4}
-          fontSize={12}
+          fontSize={11}
           fill={this.props.chartConfig.color(0.5)}
         >
         {(yLabels[count - i - 1].toLocaleString())}
@@ -219,7 +223,7 @@ class AbstractChart extends Component {
 
   renderVerticalLabels = config => {
     var { count, data, labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
-    const fontSize = 12
+    const fontSize = 11
 
     var decimalPlaces = (this.props.chartConfig.decimalPlaces !== undefined) ? this.props.chartConfig.decimalPlaces : 2;
     let min = Math.min(...data).toFixed(decimalPlaces);
@@ -233,7 +237,7 @@ class AbstractChart extends Component {
       
       return labels.map((label, i) => {
         let labelSplit = label.split(" ")
-        
+        console.log((height * (count - 1) / count) + paddingTop + (fontSize * 2))
         return (
           <G
             key={Math.random()}
@@ -295,21 +299,70 @@ class AbstractChart extends Component {
   renderLegend = config => {
     var { count, data, labels = [], width, height, paddingRight, paddingTop, horizontalOffset = 0 } = config
     const fontSize = 12
-
-    return [...new Array(data.length)].map((_, i) => {
+    //console.log(data);
+    let middle = [...new Array(data.length)].map((_, i) => {
       return (
+       
+         <G 
+            key ={Math.random()}
+            
+          >
+
         <Text
           key={Math.random()}
-          x={((width - paddingRight) / data.length * (i)) + paddingRight + horizontalOffset}
+          x={((width - paddingRight) / data.length * (i)) + paddingRight + horizontalOffset + 60}
           y={paddingTop}
           fontSize={fontSize}
           fill={this.props.chartConfig.color(0.5)}
           textAnchor="middle"
         >
-          {'label'}
+
+          {data[i].name}
         </Text>
+
+       
+          <Rect
+              x={((width - paddingRight) / data.length * (i)) + paddingRight + horizontalOffset}
+              y={paddingTop - 5}
+              rx="0"
+              ry="0"
+              width={4}
+              height="4"
+              strokeWidth={2}
+              stroke={
+                  (data[i].color ? data[i].color(0.5) : 'white') 
+                }
+              fill="white"
+             
+            />
+
+        </G>
+        
       )
     })
+
+    
+    //return middle;
+    return (
+     <View key ={Math.random()}
+      height={height}
+          width={width}>
+        <ScrollView
+          horizontal={true}
+           height={height}
+          width={width}
+        >
+        <Svg key ={Math.random()}
+          height={height}
+          width={width}
+        >
+        {middle}
+        </Svg>
+        </ScrollView>
+        </View>
+
+
+      ) 
 
   }
 

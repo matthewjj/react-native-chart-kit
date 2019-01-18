@@ -43,15 +43,18 @@ class LineChart extends AbstractChart {
           if(dataset.data[i] === null && started && nullStartVal === null) {
             nullStartVal = dataset.data[i - 1];
             nullStartPos = i - 1;
-
+           
           }
       
           if(dataset.data[i] !== null && started && nullStartVal !== null) {
             nullEndVal = dataset.data[i];
             nullEndPos = i;
+
+    
             
           }
 
+          //moving backwards find the end
           if(dataset.data[dataset.data.length - i - 1] !== null && end === null) {
             end =  dataset.data.length - i;
 
@@ -60,13 +63,15 @@ class LineChart extends AbstractChart {
           if(dataset.data[i] !== null && start === null) {
             start = i;
             started = true;
+           
+
 
           }
           
           dataRefined.push(dataset.data[i]);
           
 
-          if(nullStartVal && nullEndVal) {
+          if(nullStartVal !== null && nullEndVal !== null) {
 
             for(var ii = nullStartPos + 1; ii < nullEndPos; ii++) {
               if(nullEndVal > nullStartVal) {
@@ -105,6 +110,7 @@ class LineChart extends AbstractChart {
 
     });
 
+
     return combinedArray;
 
   }
@@ -130,12 +136,14 @@ class LineChart extends AbstractChart {
     var count = yAxisLabels.length;
 
     dataRefined.map((dataset, index) => {
+
+      
       
       for (var i = 0; i < dataset.data.length; i++) {
         if(dataset.data[i+1] == undefined) {
-          return;
+          continue;
         }
-
+        
         let value1 = dataset.data[i];
         let value2 = dataset.data[i+1];
 
@@ -209,6 +217,11 @@ class LineChart extends AbstractChart {
           missEnd = dataset.nullGaps[i].endPos;
           
         }
+
+
+        if((missStart != null && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end) {
+          return;
+        }
     
         let baseLine = (height / count * (count - 1)) + paddingTop;
         let y = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (x + offset))) ;
@@ -235,12 +248,10 @@ class LineChart extends AbstractChart {
               stroke={
                   dataset.color ? 
                     dataset.color(
-                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                      0 : 0.2
+                      0.2
                     ) : 
-                    this.props.chartConfig.color(
-                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                      0 : 0.2
+                    this.props.chartConfig.color( 
+                      0.2
                     )
                 }
               fill="white"
@@ -293,18 +304,16 @@ class LineChart extends AbstractChart {
                 stroke={
                   dataset.color ? 
                     dataset.color(
-                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                      0 : 0.2
+                      0.2
                     ) : 
                     this.props.chartConfig.color(
-                      i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                      0 : 0.2
+                      0.2
                     )
                 }
                 strokeWidth={1}
                 fill={
                   this.props.chartConfig.color(
-                    (missStart && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end ? 0 : 0.7
+                    0.7
                   )
                 }
 
@@ -414,7 +423,7 @@ class LineChart extends AbstractChart {
   }
 
   render() {
-    const paddingTop = 16
+    const paddingTop = 3
     const paddingRight = 64
     const { width, height, data, withShadow = true, withDots = true, style = {} } = this.props
     const { labels = [] } = data
