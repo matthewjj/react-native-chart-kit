@@ -18,7 +18,7 @@ class LineChart extends AbstractChart {
   dataRefinedCache = [];
 
   dataRefined = data => {
-
+    
     let combinedArray = [];
     data.map((dataset,index)=>{
       
@@ -50,8 +50,6 @@ class LineChart extends AbstractChart {
             nullEndVal = dataset.data[i];
             nullEndPos = i;
 
-    
-            
           }
 
           //moving backwards find the end
@@ -63,16 +61,12 @@ class LineChart extends AbstractChart {
           if(dataset.data[i] !== null && start === null) {
             start = i;
             started = true;
-           
-
 
           }
           
           dataRefined.push(dataset.data[i]);
           
-
           if(nullStartVal !== null && nullEndVal !== null) {
-
             for(var ii = nullStartPos + 1; ii < nullEndPos; ii++) {
               if(nullEndVal > nullStartVal) {
                 dataRefined[ii] = nullStartVal + (((nullEndVal - nullStartVal) / ( nullEndPos - nullStartPos)) * (ii - nullStartPos));
@@ -84,7 +78,6 @@ class LineChart extends AbstractChart {
               
             }
 
-            //nullGaps[nullStartPos] = {};
             nullGaps[nullStartPos] = {
                 startVal : nullStartVal, 
                 endVal: nullEndVal,
@@ -109,8 +102,7 @@ class LineChart extends AbstractChart {
       })
 
     });
-
-
+    
     return combinedArray;
 
   }
@@ -125,8 +117,6 @@ class LineChart extends AbstractChart {
     var dataRefined = this.dataRefined(data);
     this.dataRefinedCache = dataRefined;
 
-    
-
     var min = this.getMinValue();
     var range = this.getMaximumRange();
     var yAxisLabels = this.yAxisLabels(range, min);
@@ -137,8 +127,6 @@ class LineChart extends AbstractChart {
 
     dataRefined.map((dataset, index) => {
 
-      
-      
       for (var i = 0; i < dataset.data.length; i++) {
         if(dataset.data[i+1] == undefined) {
           continue;
@@ -171,7 +159,7 @@ class LineChart extends AbstractChart {
                   0 : 0.2
                 )
             }
-            strokeWidth={3}
+            strokeWidth="3"
           />
         )
 
@@ -228,23 +216,23 @@ class LineChart extends AbstractChart {
         
       
         output.push (
-          <G 
+          <G strokeWidth="1"
             key ={Math.random()}
             
           >
             {this.state && this.state.selectedIndex == (index+":"+ i) && 
-            <G 
+            <G strokeWidth="1"
             key ={Math.random()}
             
           >
             <Rect
-              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)}
-              y={y - 46}
+              x={(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)).toString()}
+              y={(y - 46).toString()}
               rx="3"
               ry="3"
-              width={(labels[i] ? labels[i].length * wordLengthEstimate : 70 )}
+              width={(labels[i] ? labels[i].length * wordLengthEstimate : 70 ).toString()}
               height="40"
-              strokeWidth={2}
+              strokeWidth="2"
               stroke={
                   dataset.color ? 
                     dataset.color(
@@ -286,11 +274,14 @@ class LineChart extends AbstractChart {
 
 
             <Rect
-              x={paddingRight + (i * (width - paddingRight) / dataset.data.length) - 20}
-              y={y - 15}
+              x={(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 20).toString()}
+              y={(y - 15).toString()}
               width="40"
               height="40"
+              rx="0"
+              ry="0"
               fill={this.props.chartConfig.color(0)}
+              strokeWidth="1"
               onPress={() => this.setState({selectedIndex: index+":"+ i })}
               
              
@@ -298,8 +289,8 @@ class LineChart extends AbstractChart {
               <Circle
                 key={index+"-"+i}
                 
-                cx={paddingRight + (i * (width - paddingRight) / dataset.data.length)}
-                cy={y}
+                cx={(paddingRight + (i * (width - paddingRight) / dataset.data.length)).toString()}
+                cy={y.toString()}
                 r="4"
                 stroke={
                   dataset.color ? 
@@ -310,7 +301,7 @@ class LineChart extends AbstractChart {
                       0.2
                     )
                 }
-                strokeWidth={1}
+                strokeWidth="1"
                 fill={
                   this.props.chartConfig.color(
                     0.7
@@ -349,7 +340,7 @@ class LineChart extends AbstractChart {
            (((height / 4 * 3 * (1 - ((x - Math.min(...dataset.data)) / this.getMaximumRange()))) + paddingTop))
           ).join(' ') + ` ${paddingRight + ((width - paddingRight) / dataset.data.length * (dataset.data.length - 1))},${(height / 4 * 3) + paddingTop} ${paddingRight},${(height / 4 * 3) + paddingTop}`}
           fill="url(#fillShadowGradient)"
-          strokeWidth={0}
+          strokeWidth="0"
         />)
     })
     return (
@@ -391,7 +382,7 @@ class LineChart extends AbstractChart {
             d={result}
             fill="none"
             stroke={this.props.chartConfig.color(0.2)}
-            strokeWidth={3}
+            strokeWidth="3"
           />
         )
       });
@@ -399,7 +390,6 @@ class LineChart extends AbstractChart {
       output
     )
 
-    
   }
 
   renderBezierShadow = config => {
@@ -413,7 +403,7 @@ class LineChart extends AbstractChart {
           key={index}
           d={d}
           fill="url(#fillShadowGradient)"
-          strokeWidth={0}
+          strokeWidth="0"
         />)
     })
     return (
@@ -432,28 +422,33 @@ class LineChart extends AbstractChart {
       width,
       height
     }
+    
     this.setStats(data.datasets);
+    
     const range = this.getMaximumRange();
     const min = this.getMinValue();
     
-
     return (
       <View style={style}>
         <Svg
           height={height}
           width={width}
+          strokeWidth="1"
         >
-          <G>
+          <G strokeWidth="1">
             {this.renderDefs({
               ...config,
               ...this.props.chartConfig
             })}
             <Rect
+              x="0"
+              y="0"
               width="100%"
-              height={height}
-              rx={borderRadius}
-              ry={borderRadius}
+              height={height.toString()}
+              rx={borderRadius.toString()}
+              ry={borderRadius.toString()}
               fill="url(#backgroundGradient)"
+              strokeWidth="1"
               onPress={() => this.setState({selectedIndex: false})}
             />
             {this.renderHorizontalLines({
@@ -489,7 +484,6 @@ class LineChart extends AbstractChart {
               ...config,
               paddingRight,
               paddingTop,
-              // data: data.datasets[0].data
               data: data.datasets
 
             })}
@@ -507,13 +501,7 @@ class LineChart extends AbstractChart {
               paddingTop,
               paddingRight
             })}
-            {this.renderLegend({
-              ...config,
-              count: 4,
-              data: data.datasets,
-              paddingTop,
-              paddingRight
-            })}
+            
           </G>
         </Svg>
       </View>
