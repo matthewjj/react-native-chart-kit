@@ -131,6 +131,10 @@ class LineChart extends AbstractChart {
         if(dataset.data[i+1] == undefined) {
           continue;
         }
+
+        if(i < dataRefined.start || i >= dataRefined.end - 1) {
+          continue;
+        }
         
         let value1 = dataset.data[i];
         let value2 = dataset.data[i+1];
@@ -142,7 +146,7 @@ class LineChart extends AbstractChart {
 
         let x2 = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (value2 + offset))) ;
         let y2 = paddingRight + ((i+1) * (width - paddingRight) / dataset.data.length);
-
+        
         output.push (
           <Polyline
             key = {index+"-"+i}
@@ -150,10 +154,7 @@ class LineChart extends AbstractChart {
             fill="none"
             stroke={
               dataset.color ? 
-                dataset.color(
-                  i < dataRefined.start || i >= dataRefined.end - 1 ? 
-                  0 : 0.2
-                ) : 
+                dataset.color : 
                 this.props.chartConfig.color(
                   i < dataRefined.start || i >= dataRefined.end - 1 ? 
                   0 : 0.2
@@ -235,9 +236,7 @@ class LineChart extends AbstractChart {
               strokeWidth="2"
               stroke={
                   dataset.color ? 
-                    dataset.color(
-                      0.2
-                    ) : 
+                    dataset.color : 
                     this.props.chartConfig.color( 
                       0.2
                     )
@@ -294,9 +293,7 @@ class LineChart extends AbstractChart {
                 r="4"
                 stroke={
                   dataset.color ? 
-                    dataset.color(
-                      0.2
-                    ) : 
+                    dataset.color : 
                     this.props.chartConfig.color(
                       0.2
                     )

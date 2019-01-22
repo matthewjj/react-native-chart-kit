@@ -1,5 +1,5 @@
 {
-  "name": "react-native-chart-kit",
+  "name": "react-native-chart-kit-dse",
   "version": "1.2.1",
   "devDependencies": {
     "babel-eslint": "^8.2.5",
