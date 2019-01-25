@@ -21,8 +21,6 @@ class AbstractChart extends Component {
   maximumRange = 0;
   negativeOffset = 0;
 
-  valueSetsCached = [];
-
   calcYAxisRange = data => (Math.max(...data) - Math.min(...data)) || 1
 
   setStats = (data) => {
@@ -39,11 +37,10 @@ class AbstractChart extends Component {
 
     this.minValue = Math.min(...valueSet);
     this.maxValue = Math.max(...valueSet);
-    this.maximumRange = this.maxValue - this.minValue;
+
+    this.maximumRange = this.maxValue - (this.minValue < 0 ? Math.abs(this.minValue) : 0);
 
     this.negativeOffset = this.negativeYAxisOffset(this.maximumRange, this.minValue);
-
-    this.valueSetsCached = valueSet;
     
     return true;
   }
@@ -61,79 +58,51 @@ class AbstractChart extends Component {
   }
 
   yAxisLabels = (range, min) => { 
-    
-    if(this.minValue < 0) {
-      if(this.maxValue > 1500) {
-        var yLabels = [-1000, 0, 1000, 2000, 3000];
+  
+    var splitNumber = range.toString().split('.');
+   
+    var length = 0;
+    var factor = 0;
 
-      }
-      else if(this.maxValue > 600) {
-        var yLabels = [-500, 0, 500, 1000, 1500];
+    var length = splitNumber[0].length
 
-      } 
-      else if(this.maxValue > 300) {
-        var yLabels = [-200, 0, 200, 400, 600];
-
-      }
-      else if(this.maxValue > 150) {
-        var yLabels = [-100, 0, 100, 200, 300];
-
-      }
-      else {
-        var yLabels = [-50, 0, 50, 100, 150];
-
-      }
+    if((range <= 1 || range <= 40) && this.minValue > -10) {
+      length = 1;
 
     }
-    else {
-      if(this.maxValue > 800000) {
-        var yLabels = [0, 400000, 800000, 1200000, 1600000];
+    else if(range <= 400 && this.minValue > -100) {
+      length = 2;
+
+    }
+   
+    factor = Math.pow(10, length);
+    
+    
+    if(range < factor) {
+      if(range < ((factor / 10) * 4)) {
+        factor = (factor / 10);
 
       }
-      else if(this.maxValue > 400000) {
-        var yLabels = [0, 200000, 400000, 600000, 800000];
+    
+    }
 
-      }
-      else if(this.maxValue > 40000) {
-        var yLabels = [0, 100000, 200000, 300000, 400000];
+    var currentPoint = 0;
+    if(this.minValue < 0) {
+  
+      this.negativeOffset = factor;
+      currentPoint = 0 - factor;
+    }
+   
+    i=0;
+    var yLabels = [];
+    while(i < 5) {
+      yLabels.push(currentPoint);
+      currentPoint = currentPoint + factor;
 
-      }
-      else if(this.maxValue > 12000) {
-        var yLabels = [0, 10000, 20000, 30000, 40000];
+      i++;
 
-      }
-      else if(this.maxValue > 8000) {
-        var yLabels = [0, 4000, 8000, 10000, 12000];
-
-      }
-      else if(this.maxValue > 4000) {
-        var yLabels = [0, 2000, 4000, 6000, 8000];
-
-      }
-      else if(this.maxValue > 2000) {
-        var yLabels = [0, 1000, 2000, 3000, 4000];
-
-      }
-      else if(this.maxValue > 800) {
-        var yLabels = [0, 500, 1000, 1500, 2000];
-
-      }
-      else if(this.maxValue > 400) {
-        var yLabels = [0, 200, 400, 600, 800];
-
-      }
-      else if(this.maxValue > 200) {
-        var yLabels = [0, 100, 200, 300, 400];
-
-      }
-      else if(this.maxValue <= 200) {
-        var yLabels = [0, 50, 100, 150, 200];
-
-      }
-
-
-    } 
-
+    }
+    console.log(yLabels);
     return yLabels;
 
   }
@@ -209,7 +178,7 @@ class AbstractChart extends Component {
           y={((height / count * i) + paddingTop + 4).toString()}
           fontSize="11"
           fill={this.props.chartConfig.color(0.5)}
-          strokeWidth="1" 
+          //strokeWidth="1" 
 
         >{(yLabels[count - i - 1].toLocaleString())}</TSpan>
       

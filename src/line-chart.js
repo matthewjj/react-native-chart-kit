@@ -12,6 +12,7 @@ import {
   Tspan
 } from 'react-native-svg'
 import AbstractChart from './abstract-chart'
+import Points from './points';
 
 class LineChart extends AbstractChart {
 
@@ -108,6 +109,9 @@ class LineChart extends AbstractChart {
   }
 
   renderLine = config => {
+
+    
+    
     if (this.props.bezier) {
       return this.renderBezierLine(config)
     }
@@ -177,146 +181,24 @@ class LineChart extends AbstractChart {
 
   renderDots = config => {
     
-    var { count, data, labels, width, height, paddingTop, paddingRight } = config
-    const wordLengthEstimate = 8.75;
-    let output = [];
-    var dataRefined = this.dataRefinedCache;
+      var min = this.getMinValue();
+      var offset = this.getNegativeOffset();
+      var range = this.getMaximumRange();
 
-    var min = this.getMinValue();
-    var offset = this.getNegativeOffset();
-    var range = this.getMaximumRange();
-
-    var yAxisLabels = this.yAxisLabels(range, min);
-    var yAxisRange = this.calcYAxisRange(yAxisLabels);
-
-    count = yAxisLabels.length;
-
-    dataRefined.map((dataset, index)=>{
-       
-      var missStart = null;
-      var missEnd = null;
-
-      if(!dataset.hasData) {
-        return;
-      }
-      
-      dataset.data.map((x, i) => {
-        if(dataset.nullGaps[i] ) {
-          missStart = dataset.nullGaps[i].startPos;
-          missEnd = dataset.nullGaps[i].endPos;
-          
-        }
-
-
-        if((missStart != null && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end) {
-          return;
-        }
+      var yAxisLabels = this.yAxisLabels(range, min);
+      var yAxisRange = this.calcYAxisRange(yAxisLabels);
     
-        let baseLine = (height / count * (count - 1)) + paddingTop;
-        let y = baseLine - (height / count * ( ((count - 1) / yAxisRange) * (x + offset))) ;
-        
-      
-        output.push (
-          <G strokeWidth="1"
-            key ={Math.random()}
-            
-          >
-            {this.state && this.state.selectedIndex == (index+":"+ i) && 
-            <G strokeWidth="1"
-            key ={Math.random()}
-            
-          >
-            <Rect
-              x={(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)).toString()}
-              y={(y - 46).toString()}
-              rx="3"
-              ry="3"
-              width={(labels[i] ? labels[i].length * wordLengthEstimate : 70 ).toString()}
-              height="40"
-              strokeWidth="2"
-              stroke={
-                  dataset.color ? 
-                    dataset.color : 
-                    this.props.chartConfig.color( 
-                      0.2
-                    )
-                }
-              fill="white"
-             
-            />
-              <Text
-                key={Math.random()}
-                x={paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4}
-                y={y - 30}
-                textAnchor="middle"
-                fontSize={12}
-                fill="black"
-              >
-                {(labels[i] ? labels[i] : "")}
-                
-              </Text>
-              <Text
-                key={Math.random()}
-                x={paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4}
-                y={y - 16}
-                textAnchor="middle"
-                fontSize={12}
-                fill="black"
-              >
-                {x}
-                
-              </Text>
-
-              </G>
-            
-            }
-
-
-            <Rect
-              x={(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 20).toString()}
-              y={(y - 15).toString()}
-              width="40"
-              height="40"
-              rx="0"
-              ry="0"
-              fill={this.props.chartConfig.color(0)}
-              strokeWidth="1"
-              onPress={() => this.setState({selectedIndex: index+":"+ i })}
-              
-             
-            />
-              <Circle
-                key={index+"-"+i}
-                
-                cx={(paddingRight + (i * (width - paddingRight) / dataset.data.length)).toString()}
-                cy={y.toString()}
-                r="4"
-                stroke={
-                  dataset.color ? 
-                    dataset.color : 
-                    this.props.chartConfig.color(
-                      0.2
-                    )
-                }
-                strokeWidth="1"
-                fill={
-                  this.props.chartConfig.color(
-                    0.7
-                  )
-                }
-
-
-              />
-            
-          </G>
-          )
-      })
-
-
-
-    })
     return (
-      output
+      <Points
+        config={config}
+        min={min}
+        offset={offset}
+        range={range}
+        yAxisLabels={yAxisLabels}
+        yAxisRange={yAxisRange}
+        dataRefinedCache={this.dataRefinedCache}
+        chartConfig={this.props.chartConfig}
+      />
     )
 
   }
@@ -409,8 +291,9 @@ class LineChart extends AbstractChart {
     
   }
 
+
   render() {
-    const paddingTop = 3
+    const paddingTop = 4
     const paddingRight = 64
     const { width, height, data, withShadow = true, withDots = true, style = {} } = this.props
     const { labels = [] } = data
@@ -446,7 +329,7 @@ class LineChart extends AbstractChart {
               ry={borderRadius.toString()}
               fill="url(#backgroundGradient)"
               strokeWidth="1"
-              onPress={() => this.setState({selectedIndex: false})}
+            
             />
             {this.renderHorizontalLines({
               ...config,
