@@ -102,7 +102,7 @@ class AbstractChart extends Component {
       i++;
 
     }
-    console.log(yLabels);
+   
     return yLabels;
 
   }
