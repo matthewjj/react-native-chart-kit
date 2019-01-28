@@ -55,9 +55,6 @@ class Points extends Component {
 
 
     render() {
-    	console.log("lender");
-    
-
     	var { count, data, labels, width, height, paddingTop, paddingRight } = this.props.config
 	    const wordLengthEstimate = 8.75;
 	    let output = [];
@@ -66,12 +63,8 @@ class Points extends Component {
 	    count = this.props.yAxisLabels.length;
 
 	    if(this.state && this.state.selectedIndex){
-	    	console.log(this.state.selectedIndex);
-	    	
-	    	
             var popup =	<G strokeWidth="1"
            		 	key ={Math.random()}
-            
           		>
 		            <Rect
 		              	x={this.state.selectedIndex.rectX}
@@ -81,12 +74,7 @@ class Points extends Component {
 		              	width={this.state.selectedIndex.rectWidth}
 		              	height="40"
 		              	strokeWidth="2"
-		              	stroke={
-		                  	
-		                    	this.props.chartConfig.color( 
-		                      	0.2)
-		                    
-		                }
+		              	stroke={this.props.chartConfig.color(0.2)}
 		              	fill="white"
 		             
 		            />
@@ -112,9 +100,7 @@ class Points extends Component {
                 		{this.state.selectedIndex.label2}
             		</Text>
 				</G>;
-		           
 
-	    	
 	    }
 
 	    if(this.cachedOutput.length > 0) {
@@ -125,9 +111,7 @@ class Points extends Component {
 	    	
 	    }
 
-
 	    output.push (
-
 	    	<Rect
 	    		key={"backCover"}
 	          	x={0}
@@ -147,7 +131,6 @@ class Points extends Component {
 	    )
 
 	    dataRefined.map((dataset, index)=>{
-       	
 	      	var missStart = null;
 	      	var missEnd = null;
 
@@ -230,10 +213,6 @@ class Points extends Component {
 	    })
 
 
-
-	   
-
-	   
 	    this.cachedOutput = output;
 
 	   	//output.push(popup)
