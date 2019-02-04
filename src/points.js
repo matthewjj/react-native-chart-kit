@@ -22,7 +22,6 @@ class Points extends Component {
 
 	
     onPress(rectX, rectY, rectWidth, textX, textY, label1, text2X, text2Y, label2) {
-  		console.log("press");
     	this.setState({ selectedIndex : {
     		rectX : rectX, 
     		rectY : rectY, 
@@ -41,15 +40,12 @@ class Points extends Component {
     onClear(index, i) {
  		//prevent continous clicking
     	if(this.state && this.state.selectedIndex){
-    		console.log("will clear");
     		this.setState({selectedIndex: false })
 
     	}
     }
 
     componentWillReceiveProps() {
-    	console.log("will receive");
-
     	this.cachedOutput = [];
     }
 
@@ -104,7 +100,6 @@ class Points extends Component {
 	    }
 
 	    if(this.cachedOutput.length > 0) {
-	    	console.log("using cache")
 	    	var output2 = this.cachedOutput.slice(0);
 	    	output2.push(popup)
 	    	return output2;

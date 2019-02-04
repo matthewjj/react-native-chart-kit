@@ -168,7 +168,7 @@ class AbstractChart extends Component {
           textAnchor="end"
           y={((height / count * i) + paddingTop + 4).toString()}
           fontSize="11"
-          fill={this.props.chartConfig.color(0.5)}
+          fill={this.props.chartConfig.color(1)}
           strokeWidth="1"
         >
         <TSpan 
@@ -177,8 +177,8 @@ class AbstractChart extends Component {
           textAnchor="end"
           y={((height / count * i) + paddingTop + 4).toString()}
           fontSize="11"
-          fill={this.props.chartConfig.color(0.5)}
-          //strokeWidth="1" 
+          fill={this.props.chartConfig.color(1)}
+          strokeWidth="1" 
 
         >{(yLabels[count - i - 1].toLocaleString())}</TSpan>
       
@@ -252,7 +252,7 @@ class AbstractChart extends Component {
               //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
               //y={y}
               fontSize={fontSize}
-              fill={this.props.chartConfig.color(0.5)}
+              fill={this.props.chartConfig.color(1)}
               textAnchor="middle"
               strokeWidth="1"
               transform="translate(-10, 0) rotate(-45)"
@@ -266,7 +266,7 @@ class AbstractChart extends Component {
                 //x={((width - paddingRight) / labels.length * (i)) + paddingRight + horizontalOffset}
                 //y={y}
                 fontSize={fontSize}
-                fill={this.props.chartConfig.color(0.5)}
+                fill={this.props.chartConfig.color(1)}
                 textAnchor="middle"
                 strokeWidth="1"
                 transform="translate(10, 0) rotate(-45)"
