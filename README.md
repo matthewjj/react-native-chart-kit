@@ -29,12 +29,12 @@ const chartConfig = {
           {
             data: [1, 5, 2, 1, 1100, 111],
             color: '#fff',
-            name: "instrumentName"
+            name: "Name 1"
           },
           {
             data: [115, 2618, 31, 19, -1100, 111],
             color: '#000',
-            name: "instrumentName"
+            name: "Name 2"
           }
         ]
     }}
