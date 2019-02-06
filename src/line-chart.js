@@ -12,7 +12,7 @@ import {
   Tspan
 } from 'react-native-svg'
 import AbstractChart from './abstract-chart'
-import Points from './points';
+import Points from './points/points';
 
 class LineChart extends AbstractChart {
 
@@ -103,6 +103,8 @@ class LineChart extends AbstractChart {
       })
 
     });
+
+    
     
     return combinedArray;
 
@@ -110,8 +112,6 @@ class LineChart extends AbstractChart {
 
   renderLine = config => {
 
-    
-    
     if (this.props.bezier) {
       return this.renderBezierLine(config)
     }
@@ -136,7 +136,7 @@ class LineChart extends AbstractChart {
           continue;
         }
 
-        if(i < dataRefined.start || i >= dataRefined.end - 1) {
+        if(i < dataset.start || i >= dataset.end - 1) {
           continue;
         }
         
