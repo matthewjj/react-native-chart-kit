@@ -20,7 +20,6 @@ class Points extends Component {
     	this.cachedOutput = [];
   	}
 
-	
     onPress(rectX, rectY, rectWidth, textX, textY, label1, text2X, text2Y, label2) {
     	this.setState({ selectedIndex : {
     		rectX : rectX, 
@@ -34,7 +33,6 @@ class Points extends Component {
     		label2 : label2
     	}})
     
-    	
     }
 
     onClear(index, i) {
@@ -49,7 +47,6 @@ class Points extends Component {
     	this.cachedOutput = [];
     }
 
-
     render() {
     	var { count, data, labels, width, height, paddingTop, paddingRight } = this.props.config
 	    const wordLengthEstimate = 8.75;
@@ -59,12 +56,16 @@ class Points extends Component {
 	    count = this.props.yAxisLabels.length;
 
 	    if(this.state && this.state.selectedIndex){
+
+	    	console.log(height, paddingTop);
+	    	console.log(this.state);
+
             var popup =	<G strokeWidth="1"
            		 	key ={Math.random()}
           		>
 		            <Rect
 		              	x={this.state.selectedIndex.rectX}
-		              	y={this.state.selectedIndex.rectY}
+		              	y={this.state.selectedIndex.rectY > 0 ? this.state.selectedIndex.rectY : this.state.selectedIndex.rectY + 50}
 		              	rx="3"
 		              	ry="3"
 		              	width={this.state.selectedIndex.rectWidth}
@@ -77,7 +78,7 @@ class Points extends Component {
 		            <Text
 		                key={Math.random()}
 		                x={this.state.selectedIndex.textX}
-		                y={this.state.selectedIndex.textY}
+		                y={this.state.selectedIndex.rectY > 0 ? this.state.selectedIndex.textY : this.state.selectedIndex.textY + 50}
 		                textAnchor="middle"
 		                fontSize={12}
 		                fill="black"
@@ -88,12 +89,12 @@ class Points extends Component {
               		<Text
                 		key={Math.random()}
                 		x={this.state.selectedIndex.text2X}
-                		y={this.state.selectedIndex.text2Y}
+                		y={this.state.selectedIndex.rectY > 0 ? this.state.selectedIndex.text2Y : this.state.selectedIndex.text2Y + 50}
                 		textAnchor="middle"
                 		fontSize={12}
                 		fill="black"
               		>
-                		{this.state.selectedIndex.label2}
+                		{this.state.selectedIndex.label2.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             		</Text>
 				</G>;
 
@@ -118,10 +119,8 @@ class Points extends Component {
 	          	//fill={this.props.chartConfig.color(0)}
 	          	fill={this.props.chartConfig.color(0)}
 	          	strokeWidth="1"
-	          	onPress={() => this.onClear()}
-	              
+	          	onPress={() => this.onClear()}	              
 	    	/>
-
 
 	    )
 
@@ -137,7 +136,6 @@ class Points extends Component {
 	        	if(dataset.nullGaps[i] ) {
 	          		missStart = dataset.nullGaps[i].startPos;
 	          		missEnd = dataset.nullGaps[i].endPos;
-	          
 	        	}
 
 	        	if((missStart != null && i > missStart && i < missEnd) || i < dataset.start || i >= dataset.end) {
@@ -145,15 +143,10 @@ class Points extends Component {
 	        	}
 	    
 	        	let baseLine = (height / count * (count - 1)) + paddingTop;
-	        	let y = baseLine - (height / count * ( ((count - 1) / this.props.yAxisRange) * (x + this.props.offset))) ;
-	        
-	      
+	        	let y = baseLine - (height / count * ( ((count - 1) / this.props.yAxisRange) * (x + this.props.offset)));
+
 	        	output.push (
-		          	<G strokeWidth="1"
-		            	key ={Math.random()}
-		            
-		          	>
-		            
+		          	<G strokeWidth="1" key ={Math.random()}>     
 				      	<Circle
 				        	key={index+"-"+i}
 				        	cx={(paddingRight + (i * (width - paddingRight) / dataset.data.length)).toString()}
@@ -168,9 +161,7 @@ class Points extends Component {
 				       	 	}
 				        	strokeWidth="1"
 				        	fill={this.props.chartConfig.color(0.7)}
-
 				      	/>
-
 				      	<Rect
 				          	x={(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 20).toString()}
 				          	y={(y - 15).toString()}
@@ -181,32 +172,22 @@ class Points extends Component {
 				          	fill={this.props.chartConfig.color(0)}
 				          	strokeWidth="1"
 				          	onPress={() => this.onPress(
-				          			(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)).toString(),
-				          			(y - 46).toString(),
-				          			(labels[i] ? labels[i].length * wordLengthEstimate : 70 ).toString(),
-
-				          			paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4,
-				          			(y - 30),
-				          			(labels[i] ? labels[i] : ""),
-				          			
-
-				          			paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4,
-				          			(y - 16),
-				          			x
-
-
-
-				          		)
-				          	}
-				              
+			          			(paddingRight + (i * (width - paddingRight) / dataset.data.length) - 30 - (labels[i] && labels[i].length > 8 ? (labels[i].length * wordLengthEstimate) / 3.4 : 0)),
+			          			(y - 46),
+			          			(labels[i] ? labels[i].length * wordLengthEstimate : 70 ),
+			          			paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4,
+			          			(y - 30),
+			          			(labels[i] ? labels[i] : ""),
+			          			paddingRight + (i * (width - paddingRight) / dataset.data.length) + 4,
+			          			(y - 16),
+			          			x
+				          	)}
 				    	/>
-			            
 					</G>
 				)
 			})
 
 	    })
-
 
 	    this.cachedOutput = output;
 
@@ -216,7 +197,5 @@ class Points extends Component {
 	}
 
 }
-
-
 
 export default Points
