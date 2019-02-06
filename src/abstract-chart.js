@@ -36,7 +36,7 @@ class AbstractChart extends Component {
 
     this.minValue = Math.min(...valueSet);
     this.maxValue = Math.max(...valueSet);
-    this.maximumRange = this.maxValue - (this.minValue < 0 ? Math.abs(this.minValue) : 0);
+    this.maximumRange = this.maxValue + (this.minValue < 0 ? Math.abs(this.minValue) : 0);
     this.negativeOffset = this.negativeYAxisOffset(this.maximumRange, this.minValue);
     
     return true;
@@ -58,42 +58,44 @@ class AbstractChart extends Component {
     var splitNumber = range.toString().split('.');
     var length = splitNumber[0].length
     var quartile = 0;
+    var currentPoint = 0;
+    var yLabels = [];
 
-    if((range <= 1 || range <= 40) && this.minValue > -10) {
-      length = 1;
-
-    }
-    else if(range <= 400 && this.minValue > -100) {
-      length = 2;
-
-    }
+   
+    console.log(this.minValue);
+    console.log(length);
     
     //looking to get a 10 based axis for consistency
     quartile = Math.pow(10, length);
-    
-    //if one of the sections is bigger than the whole range then we can bring the scale down
-    if(range < quartile) {
+
+   
+
+    //if one of the sections is bigger than the whole range then we can bring the scale down bearing in mind the min value has to fit
+    if(range < quartile && this.minValue > (quartile * -1)) {
       //if we can step down a power of 10 and the data range be less than y axis range 
-      if(range <= ((quartile / 10) * 4)) {
+      if(range <= ((quartile / 10) * 4) && this.minValue > ((quartile / 10) * -1)) {
         quartile = (quartile / 10);
 
       }
       
       // and if one of the y axis sections is bigger than the range we can cut it further
-      if(range <= quartile ) {
+      if(range <= quartile && this.minValue > ((quartile / 4) * -1)) {
         quartile = (quartile / 4);
       }
     
     }
 
-    var currentPoint = 0;
+    //if we have negative values
     if(this.minValue < 0) {
+
+      console.log(range)
+
       this.negativeOffset = quartile;
       currentPoint = 0 - quartile;
     }
-   
-    i=0;
-    var yLabels = [];
+
+  
+    var i=0;
     while(i < 5) {
       yLabels.push(currentPoint);
       currentPoint = currentPoint + quartile;
@@ -178,7 +180,7 @@ class AbstractChart extends Component {
           fill={this.props.chartConfig.color(1)}
           strokeWidth="1" 
 
-        >{(yLabels[count - i - 1].toLocaleString())}</TSpan>
+        >{(yLabels[count - i - 1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))}</TSpan>
       
     </Text>
       )
