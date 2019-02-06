@@ -26,7 +26,6 @@ class AbstractChart extends Component {
   setStats = (data) => {
     
     let valueSet = [];
-
     data.map((dataset, index)=>{
       for(i = 0; i< dataset.data.length; i++) {
         
@@ -37,9 +36,7 @@ class AbstractChart extends Component {
 
     this.minValue = Math.min(...valueSet);
     this.maxValue = Math.max(...valueSet);
-
     this.maximumRange = this.maxValue - (this.minValue < 0 ? Math.abs(this.minValue) : 0);
-
     this.negativeOffset = this.negativeYAxisOffset(this.maximumRange, this.minValue);
     
     return true;
@@ -58,13 +55,9 @@ class AbstractChart extends Component {
   }
 
   yAxisLabels = (range, min) => { 
-  
     var splitNumber = range.toString().split('.');
-   
-    var length = 0;
-    var factor = 0;
-
     var length = splitNumber[0].length
+    var quartile = 0;
 
     if((range <= 1 || range <= 40) && this.minValue > -10) {
       length = 1;
@@ -74,31 +67,36 @@ class AbstractChart extends Component {
       length = 2;
 
     }
-   
-    factor = Math.pow(10, length);
     
+    //looking to get a 10 based axis for consistency
+    quartile = Math.pow(10, length);
     
-    if(range < factor) {
-      if(range < ((factor / 10) * 4)) {
-        factor = (factor / 10);
+    //if one of the sections is bigger than the whole range then we can bring the scale down
+    if(range < quartile) {
+      //if we can step down a power of 10 and the data range be less than y axis range 
+      if(range <= ((quartile / 10) * 4)) {
+        quartile = (quartile / 10);
 
+      }
+      
+      // and if one of the y axis sections is bigger than the range we can cut it further
+      if(range <= quartile ) {
+        quartile = (quartile / 4);
       }
     
     }
 
     var currentPoint = 0;
     if(this.minValue < 0) {
-  
-      this.negativeOffset = factor;
-      currentPoint = 0 - factor;
+      this.negativeOffset = quartile;
+      currentPoint = 0 - quartile;
     }
    
     i=0;
     var yLabels = [];
     while(i < 5) {
       yLabels.push(currentPoint);
-      currentPoint = currentPoint + factor;
-
+      currentPoint = currentPoint + quartile;
       i++;
 
     }
